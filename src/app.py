@@ -3,12 +3,12 @@ from sentence_transformers import SentenceTransformer
 from pinecone import Pinecone
 from dotenv import load_dotenv
 import os
-
+from flask_cors import CORS
 
 load_dotenv()
 
 app = Flask(__name__)
-
+CORS(app)
 
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
 
@@ -27,7 +27,7 @@ def create_embedding(query):
     return embedding.tolist()
 
 
-def search_videos(top_k=5, embedding):
+def search_videos(embedding, top_k):
     try:
         result = index.query(
         vector = embedding,
@@ -46,18 +46,16 @@ def search_videos(top_k=5, embedding):
                 'title': match['metadata']['title']
             })  
             
-        return results    
+        return jsonify(results)    
     
     except Exception as e: 
-        return f"An error occurred during the search: {e}"
+        return jsonify({"error": f"An error occurred during the search: {e}"}), 500
     
 
 
 @app.route("/", methods=["GET"])
 def home():  
-    return {
-        "data":"Whatsup Sucka!!!!"
-    }
+    return jsonify({"data": "Whatsup Sucka!!!!"})
     
 
 @app.route("/", methods=["POST"])
@@ -65,11 +63,13 @@ def search():
     data = request.get_json()
     query = data['query']
     embedding = create_embedding(query)
-    result = search_videos(10, embedding)
+    result = search_videos(embedding, 10)
     
     return result
 
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    # Use environment variables for host and port, default to 5000
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=False)
