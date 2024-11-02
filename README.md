@@ -11,7 +11,7 @@ A Flask-based API that leverages Sentence Transformers and Pinecone to perform s
 - [Configuration](#configuration)
 - [Running the Application](#running-the-application)
 - [API Endpoint](#api-endpoint)
-  - [POST `/search`](#post-search)
+  - [POST `/`](#post-search)
 - [Example Usage](#example-usage)
 - [Deployment](#deployment)
 - [Contributing](#contributing)
